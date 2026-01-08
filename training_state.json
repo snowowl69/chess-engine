@@ -1,0 +1,19 @@
+{
+  "stage": "initial",
+  "epoch": 9,
+  "iteration": 0,
+  "total_positions_seen": 752997,
+  "total_training_time": 168048.5672416687,
+  "best_loss": 1.8956309142153573,
+  "best_eval_score": 0.0,
+  "initial_epochs_completed": 9,
+  "self_play_iterations_completed": 0,
+  "model_architecture": {
+    "num_res_blocks": 10,
+    "num_hidden": 256,
+    "total_parameters": 12386314
+  },
+  "last_checkpoint_path": "models/checkpoints\\chess_model_epoch_6_20251107_141918.pth",
+  "start_time": "2025-11-06T11:12:04.846868",
+  "last_update": "2025-12-24T21:36:23.024226"
+}

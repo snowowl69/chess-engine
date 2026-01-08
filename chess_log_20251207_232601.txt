@@ -1,0 +1,113 @@
+Player plays: \u2659 to d4 (d2d4)
+Evaluation completed
+Evaluation completed
+AI plays: \u265f to c6 (c7c6)
+Player plays: \u2659 to d5 (d4d5)
+Evaluation completed
+Evaluation completed
+AI plays: \u265f to d5 (c6d5)
+Player plays: \u2658 to c3 (b1c3)
+Evaluation completed
+Evaluation completed
+AI plays: \u265f to f6 (f7f6)
+Player plays: \u2658 to d5 (c3d5)
+Evaluation completed
+Evaluation completed
+AI plays: \u265b to a5 (d8a5)
+Time's up! Black wins!
+Player plays: \u2659 to c3 (c2c3)
+Evaluation completed
+Evaluation completed
+AI plays: \u265b to a6 (a5a6)
+Player plays: \u2659 to a4 (a2a4)
+Evaluation completed
+Evaluation completed
+AI plays: \u265a to f7 (e8f7)
+Player plays: \u2659 to b4 (b2b4)
+Evaluation completed
+Evaluation completed
+AI plays: \u265b to c4 (a6c4)
+Player plays: \u2655 to d4 (d1d4)
+Evaluation completed
+Evaluation completed
+AI plays: \u265b to d4 (c4d4)
+Player plays: \u2659 to d4 (c3d4)
+Evaluation completed
+Evaluation completed
+AI plays: \u265f to e5 (e7e5)
+Player plays: \u2659 to e5 (d4e5)
+Evaluation completed
+Evaluation completed
+AI plays: \u265f to e5 (f6e5)
+Player plays: \u2659 to e3 (e2e3)
+Evaluation completed
+Evaluation completed
+AI plays: \u265f to e4 (e5e4)
+Player plays: \u2659 to f4 (f2f4)
+Evaluation completed
+Evaluation completed
+AI plays: \u265a to g6 (f7g6)
+Player plays: \u2659 to g4 (g2g4)
+Evaluation completed
+Evaluation completed
+AI plays: \u265e to h6 (g8h6)
+Player plays: \u2659 to g5 (g4g5)
+Evaluation completed
+Evaluation completed
+AI plays: \u265e to f7 (h6f7)
+Player plays: \u2657 to b5 (f1b5)
+Evaluation completed
+Evaluation completed
+AI plays: \u265f to d6 (d7d6)
+Player plays: \u2658 to h3 (g1h3)
+Evaluation completed
+Evaluation completed
+AI plays: \u265d to h3 (c8h3)
+Player plays: \u2657 to b2 (c1b2)
+Evaluation completed
+Evaluation completed
+AI plays: \u265a to h5 (g6h5)
+Player plays: \u2656 to c1 (a1c1)
+Evaluation completed
+Evaluation completed
+AI plays: \u265f to b6 (b7b6)
+Player plays: \u2656 to c6 (c1c6)
+Evaluation completed
+Evaluation completed
+AI plays: \u265e to c6 (b8c6)
+Player plays: \u2654 to d2 (e1d2)
+Evaluation completed
+Evaluation completed
+AI plays: \u265e to b8 (c6b8)
+Player plays: \u2654 to c3 (d2c3)
+Evaluation completed
+Evaluation completed
+AI plays: \u265d to g2 (h3g2)
+Player plays: \u2656 to g1 (h1g1)
+Evaluation completed
+Evaluation completed
+AI plays: \u265d to f3 (g2f3)
+Player plays: \u2656 to f1 (g1f1)
+Evaluation completed
+Evaluation completed
+AI plays: \u265d to g2 (f3g2)
+Player plays: \u2656 to f2 (f1f2)
+Evaluation completed
+Evaluation completed
+AI plays: \u265d to h3 (g2h3)
+Player plays: \u2656 to d2 (f2d2)
+Evaluation completed
+Evaluation completed
+AI plays: \u265a to g6 (h5g6)
+Player plays: \u2656 to d4 (d2d4)
+Evaluation completed
+Evaluation completed
+AI plays: \u265f to a5 (a7a5)
+Player plays: \u2656 to e4 (d4e4)
+Evaluation completed
+Evaluation completed
+AI plays: \u265f to b4 (a5b4)
+Player plays: \u2656 to b4 (e4b4)
+Evaluation completed
+Evaluation completed
+AI plays: \u265a to f5 (g6f5)

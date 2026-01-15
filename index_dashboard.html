@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess AI Platform - Home</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo-section { display: flex; align-items: center; }
+        .logo { font-size: 2em; margin-right: 15px; }
+        .nav-title { font-size: 1.5em; font-weight: 600; }
+        
+        .nav-links { display: flex; gap: 20px; }
+        .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-role {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        
+        .admin-role { background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%); }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-logout { background: rgba(220, 53, 69, 0.8); color: white; }
+        .btn-logout:hover { background: rgba(220, 53, 69, 1); }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        
+        .dashboard-title { text-align: center; margin-bottom: 40px; }
+        .dashboard-title h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .dashboard-title p { font-size: 1.2em; opacity: 0.9; }
+        
+        .mode-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .mode-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .mode-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .mode-icon { font-size: 4em; margin-bottom: 20px; display: block; }
+        .mode-title { font-size: 1.8em; font-weight: 600; margin-bottom: 15px; }
+        .mode-description { font-size: 1.1em; opacity: 0.9; margin-bottom: 20px; line-height: 1.6; }
+        
+        .mode-btn {
+            width: 100%;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-training { background: #28a745; color: white; }
+        .btn-training:hover { background: #218838; }
+        .btn-playing { background: #17a2b8; color: white; }
+        .btn-playing:hover { background: #138496; }
+        .btn-analytics { background: #6f42c1; color: white; }
+        .btn-analytics:hover { background: #5a32a3; }
+        
+        .stats-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .stats-title { font-size: 1.5em; margin-bottom: 20px; text-align: center; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-value { font-size: 2em; font-weight: bold; margin-bottom: 5px; }
+        .stat-label { font-size: 0.9em; opacity: 0.8; }
+        
+        @media (max-width: 768px) {
+            .mode-selection { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="nav-container">
+            <div class="logo-section">
+                <span class="logo">♟️</span>
+                <span class="nav-title">Chess AI Platform</span>
+            </div>
+            <div class="user-info">
+                <span>Welcome, {{ stats.username }}!</span>
+                <span class="user-role {{ 'admin-role' if stats.role == 'admin' else '' }}">
+                    {{ stats.role.title() }}
+                </span>
+                <a href="{{ url_for('logout') }}" class="btn btn-logout">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="dashboard-title">
+            {% if stats.role == 'admin' %}
+            <h1>🔧 Admin Dashboard</h1>
+            <p>Manage AI training, monitor users, and control the chess platform</p>
+            {% else %}
+            <h1>🏆 Your Chess Dashboard</h1>
+            <p>Play chess against AI and improve your skills</p>
+            {% endif %}
+        </div>
+
+        <div class="mode-selection">
+            {% if stats.role == 'admin' %}
+            <!-- Admin Training Mode -->
+            <div class="mode-card" onclick="window.location.href='{{ url_for('training') }}'">
+                <span class="mode-icon">🧠</span>
+                <h2 class="mode-title">AI Training Control</h2>
+                <p class="mode-description">
+                    Train AlphaZero-style neural networks using self-play reinforcement learning. 
+                    Upload datasets, monitor progress, and develop powerful chess AI models.
+                </p>
+                <button class="mode-btn btn-training">
+                    🚀 Manage Training
+                </button>
+            </div>
+
+            <!-- Admin Playing Mode -->
+            <div class="mode-card" onclick="window.location.href='{{ url_for('playing') }}'">
+                <span class="mode-icon">⚔️</span>
+                <h2 class="mode-title">Test AI Models</h2>
+                <p class="mode-description">
+                    Test trained AI models, play against different versions, 
+                    and evaluate model performance. All games contribute to training data.
+                </p>
+                <button class="mode-btn btn-playing">
+                    🎮 Test & Play
+                </button>
+            </div>
+
+            <!-- Analytics Dashboard -->
+            <div class="mode-card" onclick="window.location.href='{{ url_for('dashboard') }}'">
+                <span class="mode-icon">📈</span>
+                <h2 class="mode-title">Platform Analytics</h2>
+                <p class="mode-description">
+                    Monitor user activity, training progress, model performance, 
+                    and platform statistics. Manage users and system resources.
+                </p>
+                <button class="mode-btn btn-analytics">
+                    📊 View Analytics
+                </button>
+            </div>
+
+            <!-- User Management -->
+            <div class="mode-card" onclick="window.location.href='{{ url_for('manage_users') }}'">
+                <span class="mode-icon">👥</span>
+                <h2 class="mode-title">User Management</h2>
+                <p class="mode-description">
+                    View all users, manage accounts, reset passwords, and control user access. 
+                    View detailed statistics for each user.
+                </p>
+                <button class="mode-btn btn-analytics">
+                    👥 Manage Users
+                </button>
+            </div>
+            {% else %}
+            <!-- User Playing Mode -->
+            <div class="mode-card" onclick="window.location.href='{{ url_for('playing') }}'">
+                <span class="mode-icon">♟️</span>
+                <h2 class="mode-title">Play Chess</h2>
+                <p class="mode-description">
+                    Challenge our AI opponent and test your chess skills. 
+                    Choose your difficulty level and start playing now!
+                </p>
+                <button class="mode-btn btn-playing">
+                    🎮 Start Playing
+                </button>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="stats-section">
+            {% if stats.role == 'admin' %}
+            <h3 class="stats-title">🔧 Admin Statistics</h3>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.total_users or 0 }}</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.platform_games or 0 }}</div>
+                    <div class="stat-label">Platform Games</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.training_iterations or 0 }}</div>
+                    <div class="stat-label">Training Iterations</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.training_games or 0 }}</div>
+                    <div class="stat-label">Training Games</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.avg_rating|round|int or 1200 }}</div>
+                    <div class="stat-label">Average Rating</div>
+                </div>
+            </div>
+            {% else %}
+            <h3 class="stats-title">📊 Your Statistics</h3>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.games_played }}</div>
+                    <div class="stat-label">Games Played</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.wins }}</div>
+                    <div class="stat-label">Wins</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.losses }}</div>
+                    <div class="stat-label">Losses</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.draws }}</div>
+                    <div class="stat-label">Draws</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">{{ ((stats.wins / (stats.games_played if stats.games_played > 0 else 1)) * 100)|round(1) }}%</div>
+                    <div class="stat-label">Win Rate</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.rating }}</div>
+                    <div class="stat-label">Rating</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

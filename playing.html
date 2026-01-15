@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess AI Platform - Play Chess</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+
+        .nav-title {
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: grid;
+            grid-template-columns: 1fr 600px 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .game-sidebar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .chess-board-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .chess-board {
+            width: 560px;
+            height: 560px;
+            border: 4px solid #8B4513;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            background: #DEB887;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            position: relative;
+        }
+
+        .chess-square {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+            position: relative;
+        }
+
+        .chess-square.light {
+            background-color: #F0D9B5;
+        }
+
+        .chess-square.dark {
+            background-color: #B58863;
+        }
+
+        .chess-square.selected {
+            background-color: #FFD700 !important;
+            box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+
+        .chess-square.possible-move {
+            background-color: rgba(0, 255, 0, 0.4) !important;
+            border: 3px solid #00ff00 !important;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.6) !important;
+        }
+
+        .chess-square.possible-move:hover {
+            background-color: rgba(0, 255, 0, 0.6) !important;
+            transform: scale(1.05);
+        }
+
+        .chess-square.last-move {
+            background-color: rgba(255, 255, 0, 0.4) !important;
+        }
+
+        .chess-square:hover {
+            transform: scale(0.95);
+        }
+
+        .game-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .game-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            color: white;
+        }
+
+        .game-setup {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1em;
+        }
+
+        .form-group select option {
+            background: #2a5298;
+            color: white;
+        }
+
+        .move-history {
+            max-height: 300px;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .move-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .status-display {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .game-over {
+            background: rgba(255, 215, 0, 0.3) !important;
+            border: 2px solid #FFD700;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Promotion Dialog */
+        .promotion-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none !important; /* Force hidden by default */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .promotion-dialog:not(.hidden) {
+            display: flex !important; /* Only show when not hidden */
+        }
+
+        .promotion-choices {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .promotion-title {
+            color: #333;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .promotion-pieces-row {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .promotion-piece {
+            width: 80px;
+            height: 80px;
+            border: 3px solid #333;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f0f0f0;
+            position: relative;
+        }
+
+        .promotion-piece:hover {
+            background: #e0e0e0;
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border-color: #007bff;
+        }
+
+        .promotion-piece::after {
+            content: attr(data-name);
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7em;
+            color: #333;
+            font-weight: bold;
+        }
+
+        /* Black and White piece styling */
+        .chess-square {
+            color: #000 !important; /* Ensure pieces are visible */
+        }
+
+        .white-piece {
+            color: #fff !important;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        .black-piece {
+            color: #000 !important;
+            text-shadow: 1px 1px 2px #fff;
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .chess-board {
+                width: 480px;
+                height: 480px;
+            }
+            
+            .chess-square {
+                width: 60px;
+                height: 60px;
+                font-size: 2em;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .chess-board {
+                width: 320px;
+                height: 320px;
+            }
+            
+            .chess-square {
+                width: 40px;
+                height: 40px;
+                font-size: 1.5em;
+            }
+            
+            .main-container {
+                padding: 20px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo-section">
+                <div class="logo">♔</div>
+                <div class="nav-title">Chess AI Platform - Play Chess</div>
+            </div>
+            <nav class="nav-links">
+                <a href="/dashboard">🏠 Dashboard</a>
+                <a href="/logout">🚪 Logout</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- Left sidebar - Game Setup & Info -->
+        <div class="game-sidebar">
+            <h3>🎮 Game Setup</h3>
+            <div class="game-setup" id="gameSetup">
+                <div class="form-group">
+                    <label for="colorChoice">Your Color:</label>
+                    <select id="colorChoice">
+                        <option value="white">White (First Move)</option>
+                        <option value="black">Black (Second Move)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="difficultyChoice">AI Difficulty:</label>
+                    <select id="difficultyChoice">
+                        <option value="easy">Easy</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+                <button class="btn btn-success" onclick="startNewGame()">🚀 Start New Game</button>
+            </div>
+
+            <div class="status-display" id="gameStatus">
+                Click "Start New Game" to begin!
+            </div>
+
+            <div class="game-controls hidden" id="gameControls">
+                <button class="btn btn-danger" onclick="resignGame()">🏳️ Resign</button>
+                <button class="btn btn-primary" onclick="offerDraw()">🤝 Offer Draw</button>
+            </div>
+        </div>
+
+        <!-- Center - Chess Board -->
+        <div class="chess-board-container">
+            <div class="chess-board" id="chessBoard">
+                <!-- Board squares will be generated by JavaScript -->
+            </div>
+            
+            <div class="game-info">
+                <div id="turnIndicator">🎯 Ready to Play</div>
+            </div>
+        </div>
+
+        <!-- Right sidebar - Move History & Statistics -->
+        <div class="game-sidebar">
+            <h3>📋 Move History</h3>
+            <div class="move-history">
+                <div class="move-list" id="moveList">
+                    <!-- Moves will be populated here -->
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <h4>🏆 Your Statistics</h4>
+                <div id="userStats">
+                    Loading statistics...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Promotion Dialog -->
+    <div id="promotionDialog" class="promotion-dialog hidden" onclick="cancelPromotion(event)">
+        <div class="promotion-choices" onclick="event.stopPropagation()">
+            <div class="promotion-title">Choose Promotion Piece</div>
+            <div class="promotion-pieces-row">
+                <div class="promotion-piece" data-piece="q" data-name="Queen" onclick="selectPromotion('q')">♕</div>
+                <div class="promotion-piece" data-piece="r" data-name="Rook" onclick="selectPromotion('r')">♖</div>
+                <div class="promotion-piece" data-piece="b" data-name="Bishop" onclick="selectPromotion('b')">♗</div>
+                <div class="promotion-piece" data-piece="n" data-name="Knight" onclick="selectPromotion('n')">♘</div>
+            </div>
+            <div style="margin-top: 15px; text-align: center; color: #666; font-size: 0.9em;">
+                Click outside to cancel
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chess game state
+        let gameState = {
+            board: null,
+            currentFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+            userColor: 'white',
+            difficulty: 'medium',
+            moves: [],
+            gameActive: false,
+            selectedSquare: null,
+            gameId: null,
+            pendingMove: null
+        };
+
+        // Unicode chess pieces
+        const pieces = {
+            'K': '♔', 'Q': '♕', 'R': '♖', 'B': '♗', 'N': '♘', 'P': '♙',
+            'k': '♚', 'q': '♛', 'r': '♜', 'b': '♝', 'n': '♞', 'p': '♟'
+        };
+
+        // Initialize the chess board
+        function initializeBoard() {
+            const boardElement = document.getElementById('chessBoard');
+            boardElement.innerHTML = '';
+
+            for (let rank = 7; rank >= 0; rank--) {
+                for (let file = 0; file < 8; file++) {
+                    const square = document.createElement('div');
+                    square.className = `chess-square ${(rank + file) % 2 === 0 ? 'dark' : 'light'}`;
+                    square.dataset.rank = rank;
+                    square.dataset.file = file;
+                    square.dataset.square = String.fromCharCode(97 + file) + (rank + 1);
+                    square.addEventListener('click', handleSquareClick);
+                    boardElement.appendChild(square);
+                }
+            }
+        }
+
+        // Update board display with pieces
+        function updateBoard() {
+            const squares = document.querySelectorAll('.chess-square');
+            const fenBoard = gameState.currentFen.split(' ')[0];
+            const ranks = fenBoard.split('/');
+
+            squares.forEach(square => {
+                square.textContent = '';
+                square.classList.remove('selected', 'possible-move', 'last-move');
+            });
+
+            ranks.forEach((rank, rankIndex) => {
+                let fileIndex = 0;
+                for (let char of rank) {
+                    if (isNaN(char)) {
+                        // It's a piece
+                        const square = document.querySelector(`[data-rank="${7-rankIndex}"][data-file="${fileIndex}"]`);
+                        if (square) {
+                            square.textContent = pieces[char] || '';
+                            // Add piece color classes
+                            square.classList.remove('white-piece', 'black-piece');
+                            if (char === char.toUpperCase()) {
+                                square.classList.add('white-piece');
+                            } else {
+                                square.classList.add('black-piece');
+                            }
+                        }
+                        fileIndex++;
+                    } else {
+                        // It's a number (empty squares)
+                        fileIndex += parseInt(char);
+                    }
+                }
+            });
+        }
+
+        // Handle square clicks
+        function handleSquareClick(event) {
+            if (!gameState.gameActive) return;
+
+            const square = event.target;
+            const squareNotation = square.dataset.square;
+
+            if (gameState.selectedSquare === squareNotation) {
+                // Deselect
+                gameState.selectedSquare = null;
+                updateBoard();
+                return;
+            }
+
+            if (gameState.selectedSquare) {
+                // Try to make a move
+                const fromSquare = gameState.selectedSquare;
+                const toSquare = squareNotation;
+                
+                // For now, just make the move directly without promotion check
+                // The backend will handle promotion by requiring explicit promotion moves
+                const move = fromSquare + toSquare;
+                makeMove(move);
+                
+                gameState.selectedSquare = null;
+                updateBoard(); // Clear highlights
+            } else {
+                // Select piece
+                if (square.textContent) {
+                    gameState.selectedSquare = squareNotation;
+                    square.classList.add('selected');
+                    showPossibleMoves(squareNotation);
+                }
+            }
+        }
+
+        // Show possible moves for selected piece
+        async function showPossibleMoves(fromSquare) {
+            try {
+                const response = await fetch('/api/get_legal_moves', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        from_square: fromSquare,
+                        fen: gameState.currentFen
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success && data.moves) {
+                    // Highlight possible move squares
+                    data.moves.forEach(move => {
+                        const toSquare = move.substring(2, 4); // Extract destination square
+                        const square = document.querySelector(`[data-square="${toSquare}"]`);
+                        if (square) {
+                            square.classList.add('possible-move');
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error getting legal moves:', error);
+            }
+        }
+
+        // Simple client-side pawn promotion check
+        function isSimplePawnPromotion(fromSquare, toSquare) {
+            if (!fromSquare || !toSquare || !gameState.gameActive) {
+                return false;
+            }
+            
+            const fromRank = parseInt(fromSquare[1]) - 1;
+            const toRank = parseInt(toSquare[1]) - 1;
+            
+            // Get the piece on the from square
+            const fenBoard = gameState.currentFen.split(' ')[0];
+            const ranks = fenBoard.split('/');
+            const fromFile = fromSquare.charCodeAt(0) - 97;
+            
+            let fileIndex = 0;
+            const rankData = ranks[7 - fromRank];
+            for (let char of rankData) {
+                if (isNaN(char)) {
+                    if (fileIndex === fromFile) {
+                        const piece = char.toLowerCase();
+                        // Check if it's a pawn reaching the back rank
+                        if (piece === 'p') {
+                            if (char === 'P' && toRank === 7) return true; // White pawn to 8th rank
+                            if (char === 'p' && toRank === 0) return true; // Black pawn to 1st rank
+                        }
+                        break;
+                    }
+                    fileIndex++;
+                } else {
+                    fileIndex += parseInt(char);
+                    if (fileIndex > fromFile) break;
+                }
+            }
+            return false;
+        }
+
+        // Check if a move is a pawn promotion
+        async function isPawnPromotion(fromSquare, toSquare) {
+            try {
+                // First check if this move would be a promotion
+                const response = await fetch('/api/check_promotion', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        from_square: fromSquare,
+                        to_square: toSquare,
+                        fen: gameState.currentFen
+                    })
+                });
+
+                const data = await response.json();
+                return data.is_promotion === true;
+            } catch (error) {
+                console.error('Error checking promotion:', error);
+                
+                // Fallback to client-side check
+                const fromRank = parseInt(fromSquare[1]) - 1;
+                const toRank = parseInt(toSquare[1]) - 1;
+                
+                // Get the piece on the from square
+                const fenBoard = gameState.currentFen.split(' ')[0];
+                const ranks = fenBoard.split('/');
+                const fromFile = fromSquare.charCodeAt(0) - 97;
+                
+                let fileIndex = 0;
+                const rankData = ranks[7 - fromRank];
+                for (let char of rankData) {
+                    if (isNaN(char)) {
+                        if (fileIndex === fromFile) {
+                            const piece = char.toLowerCase();
+                            // Check if it's a pawn reaching the back rank
+                            if (piece === 'p') {
+                                if (char === 'P' && toRank === 7) return true; // White pawn to 8th rank
+                                if (char === 'p' && toRank === 0) return true; // Black pawn to 1st rank
+                            }
+                            break;
+                        }
+                        fileIndex++;
+                    } else {
+                        fileIndex += parseInt(char);
+                        if (fileIndex > fromFile) break;
+                    }
+                }
+                return false;
+            }
+        }
+
+        // Show promotion dialog
+        function showPromotionDialog() {
+            // Safety check - only show if there's a pending move and game is active
+            if (!gameState.pendingMove || !gameState.gameActive) {
+                console.log('Promotion dialog blocked - no pending move or game not active');
+                return;
+            }
+            
+            const dialog = document.getElementById('promotionDialog');
+            const pieces = dialog.querySelectorAll('.promotion-piece');
+            
+            // Determine the color of the promoting pawn
+            const fromSquare = gameState.pendingMove.from;
+            const fromFile = fromSquare.charCodeAt(0) - 97;
+            const fromRank = parseInt(fromSquare[1]) - 1;
+            
+            const fenBoard = gameState.currentFen.split(' ')[0];
+            const ranks = fenBoard.split('/');
+            
+            let promotingPieceColor = 'white'; // default
+            let fileIndex = 0;
+            const rankData = ranks[7 - fromRank];
+            for (let char of rankData) {
+                if (isNaN(char)) {
+                    if (fileIndex === fromFile) {
+                        promotingPieceColor = (char === char.toUpperCase()) ? 'white' : 'black';
+                        break;
+                    }
+                    fileIndex++;
+                } else {
+                    fileIndex += parseInt(char);
+                    if (fileIndex > fromFile) break;
+                }
+            }
+            
+            // Update pieces to show correct color
+            pieces.forEach(piece => {
+                const pieceType = piece.dataset.piece;
+                if (promotingPieceColor === 'white') {
+                    piece.textContent = {q: '♕', r: '♖', b: '♗', n: '♘'}[pieceType];
+                } else {
+                    piece.textContent = {q: '♛', r: '♜', b: '♝', n: '♞'}[pieceType];
+                }
+            });
+            
+            dialog.classList.remove('hidden');
+            dialog.style.display = 'flex'; // Explicitly show
+        }
+
+        // Handle promotion piece selection
+        function selectPromotion(piece) {
+            const dialog = document.getElementById('promotionDialog');
+            dialog.classList.add('hidden');
+            dialog.style.display = 'none'; // Explicitly hide
+            
+            const move = gameState.pendingMove.from + gameState.pendingMove.to + piece;
+            makeMove(move);
+            gameState.pendingMove = null;
+        }
+
+        // Cancel promotion dialog
+        function cancelPromotion(event) {
+            if (event.target.id === 'promotionDialog') {
+                const dialog = document.getElementById('promotionDialog');
+                dialog.classList.add('hidden');
+                dialog.style.display = 'none'; // Explicitly hide
+                gameState.pendingMove = null;
+                
+                // Clear any selection
+                gameState.selectedSquare = null;
+                updateBoard();
+            }
+        }
+
+        // Start a new game
+        async function startNewGame() {
+            gameState.userColor = document.getElementById('colorChoice').value;
+            gameState.difficulty = document.getElementById('difficultyChoice').value;
+
+            try {
+                const response = await fetch('/api/new_game', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        color: gameState.userColor,
+                        difficulty: gameState.difficulty
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    gameState.gameActive = true;
+                    gameState.currentFen = data.game_state.fen;
+                    gameState.moves = data.game_state.moves || [];
+                    gameState.gameId = data.game_state.game_id;
+                    gameState.pendingMove = null; // Clear any pending moves
+                    gameState.selectedSquare = null; // Clear selection
+                    
+                    // Hide promotion dialog if it's showing
+                    const promotionDialog = document.getElementById('promotionDialog');
+                    promotionDialog.classList.add('hidden');
+                    promotionDialog.style.display = 'none';
+
+                    updateBoard();
+                    updateGameStatus('Game started! Your turn.');
+                    document.getElementById('gameSetup').classList.add('hidden');
+                    document.getElementById('gameControls').classList.remove('hidden');
+                    updateMoveHistory();
+                } else {
+                    alert('Failed to start game: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error starting game:', error);
+                alert('Error starting game');
+            }
+        }
+
+        // Make a move
+        async function makeMove(moveUci) {
+            if (!gameState.gameActive) return;
+
+            try {
+                const response = await fetch('/api/make_move', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        move: moveUci,
+                        fen: gameState.currentFen,
+                        game_id: gameState.gameId
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    gameState.currentFen = data.fen;
+                    if (data.moves) {
+                        gameState.moves.push(...data.moves);
+                    }
+                    updateBoard();
+                    updateMoveHistory();
+
+                    if (data.game_over) {
+                        endGame(data.result);
+                    } else {
+                        updateGameStatus(data.ai_move ? `AI played: ${data.ai_move}. Your turn!` : 'Your turn!');
+                    }
+                } else {
+                    // Check if error is about promotion needed
+                    if (data.error && data.error.includes('promotion') || data.error && data.error.includes('pawn')) {
+                        // Extract from/to squares from the moveUci
+                        if (moveUci.length >= 4) {
+                            const fromSquare = moveUci.substring(0, 2);
+                            const toSquare = moveUci.substring(2, 4);
+                            gameState.pendingMove = { from: fromSquare, to: toSquare };
+                            showPromotionDialog();
+                        }
+                    } else {
+                        alert('Error making move: ' + (data.error || 'Unknown error'));
+                    }
+                }
+            } catch (error) {
+                console.error('Error making move:', error);
+                alert('Error making move: ' + error.message);
+            }
+        }
+
+        // Update game status
+        function updateGameStatus(message, isGameOver = false) {
+            const statusElement = document.getElementById('gameStatus');
+            statusElement.textContent = message;
+            
+            if (isGameOver) {
+                statusElement.classList.add('game-over');
+            } else {
+                statusElement.classList.remove('game-over');
+            }
+        }
+
+        // End game
+        function endGame(result) {
+            gameState.gameActive = false;
+            let message = '';
+            
+            if (result === '1-0') {
+                if (gameState.userColor === 'white') {
+                    message = '🎉 Congratulations! You won the game!';
+                } else {
+                    message = '😞 Game Over! AI (White) won this time.';
+                }
+            } else if (result === '0-1') {
+                if (gameState.userColor === 'black') {
+                    message = '🎉 Congratulations! You won the game!';
+                } else {
+                    message = '😞 Game Over! AI (Black) won this time.';
+                }
+            } else if (result === '1/2-1/2') {
+                message = '🤝 Game ended in a draw! Well played!';
+            } else {
+                message = '🏁 Game Over!';
+            }
+
+            updateGameStatus(message, true);
+            document.getElementById('gameSetup').classList.remove('hidden');
+            document.getElementById('gameControls').classList.add('hidden');
+            loadUserStats();
+        }
+
+        // Update move history
+        function updateMoveHistory() {
+            const moveList = document.getElementById('moveList');
+            moveList.innerHTML = '';
+
+            for (let i = 0; i < gameState.moves.length; i += 2) {
+                const moveNumber = Math.floor(i / 2) + 1;
+                const whiteMove = gameState.moves[i] || '';
+                const blackMove = gameState.moves[i + 1] || '';
+                
+                moveList.innerHTML += `
+                    <div>${moveNumber}. ${whiteMove}</div>
+                    <div>${blackMove}</div>
+                `;
+            }
+        }
+
+        // Resign game
+        function resignGame() {
+            if (confirm('Are you sure you want to resign?')) {
+                gameState.gameActive = false;
+                updateGameStatus('🏳️ You resigned. Game Over.', true);
+                document.getElementById('gameSetup').classList.remove('hidden');
+                document.getElementById('gameControls').classList.add('hidden');
+            }
+        }
+
+        // Offer draw
+        function offerDraw() {
+            if (confirm('Offer a draw?')) {
+                // For now, just accept the draw
+                gameState.gameActive = false;
+                updateGameStatus('🤝 Draw agreed. Game Over.', true);
+                document.getElementById('gameSetup').classList.remove('hidden');
+                document.getElementById('gameControls').classList.add('hidden');
+            }
+        }
+
+        // Load user statistics
+        async function loadUserStats() {
+            try {
+                const response = await fetch('/api/game_history');
+                const data = await response.json();
+                
+                if (data.games) {
+                    const stats = calculateStats(data.games);
+                    document.getElementById('userStats').innerHTML = `
+                        <div>📊 Games: ${stats.total}</div>
+                        <div>🏆 Wins: ${stats.wins}</div>
+                        <div>😞 Losses: ${stats.losses}</div>
+                        <div>🤝 Draws: ${stats.draws}</div>
+                        <div>📈 Win Rate: ${stats.winRate}%</div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Calculate statistics
+        function calculateStats(games) {
+            const total = games.length;
+            let wins = 0, losses = 0, draws = 0;
+
+            games.forEach(game => {
+                if (game.result === '1-0') {
+                    if (game.user_color === 'white') wins++;
+                    else losses++;
+                } else if (game.result === '0-1') {
+                    if (game.user_color === 'black') wins++;
+                    else losses++;
+                } else {
+                    draws++;
+                }
+            });
+
+            const winRate = total > 0 ? Math.round((wins / total) * 100) : 0;
+
+            return { total, wins, losses, draws, winRate };
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeBoard();
+            updateBoard();
+            loadUserStats();
+            
+            // Ensure promotion dialog is hidden on page load
+            const promotionDialog = document.getElementById('promotionDialog');
+            if (promotionDialog) {
+                promotionDialog.classList.add('hidden');
+                promotionDialog.style.display = 'none';
+            }
+            
+            // Force hide promotion dialog every 100ms for the first 5 seconds
+            let hideAttempts = 0;
+            const forceHideInterval = setInterval(() => {
+                const dialog = document.getElementById('promotionDialog');
+                if (dialog && !gameState.gameActive) {
+                    dialog.classList.add('hidden');
+                    dialog.style.display = 'none';
+                }
+                hideAttempts++;
+                if (hideAttempts > 50) { // Stop after 5 seconds
+                    clearInterval(forceHideInterval);
+                }
+            }, 100);
+        });
+
+        // Add keyboard event listener for Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const dialog = document.getElementById('promotionDialog');
+                if (!dialog.classList.contains('hidden')) {
+                    dialog.classList.add('hidden');
+                    dialog.style.display = 'none';
+                    gameState.pendingMove = null;
+                    gameState.selectedSquare = null;
+                    updateBoard();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

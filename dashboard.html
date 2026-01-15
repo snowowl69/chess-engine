@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard - Chess AI Platform</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+
+        .nav-title {
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+        
+        .analytics-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .analytics-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .stat-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .chart-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .chart-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .metrics-table {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 30px;
+        }
+        
+        .metrics-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .metrics-table th,
+        .metrics-table td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .metrics-table th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .status-active {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .status-idle {
+            background: #FFC107;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="nav-container">
+            <div class="logo-section">
+                <div class="logo">♔</div>
+                <div class="nav-title">Chess AI Platform</div>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-btn">🏠 Home</a>
+                <a href="/playing" class="nav-btn">♟️ Play</a>
+                <a href="/training" class="nav-btn">🎓 Training</a>
+                <a href="/logout" class="nav-btn">🚪 Logout</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="analytics-header">
+            <h1>📊 Analytics Dashboard</h1>
+            <p>Real-time platform statistics and training metrics</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-value">{{ analytics.training.total_iterations }}</div>
+                <div class="stat-label">Training Iterations</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">🎮</div>
+                <div class="stat-value">{{ analytics.training.total_games|default(0)|int }}</div>
+                <div class="stat-label">Total Games Played</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">📈</div>
+                <div class="stat-value">{{ "%.3f"|format(analytics.training.best_loss|default(0)) }}</div>
+                <div class="stat-label">Best Loss Achieved</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">⏱️</div>
+                <div class="stat-value">{{ "%.1f"|format(analytics.training.total_time_hours|default(0)) }}h</div>
+                <div class="stat-label">Total Training Time</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-value">{{ analytics.users.total }}</div>
+                <div class="stat-label">Active Users</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">🏆</div>
+                <div class="stat-value">{{ analytics.users.avg_rating|round|int }}</div>
+                <div class="stat-label">Average Rating</div>
+            </div>
+        </div>
+        
+        <div class="charts-section">
+            <div class="chart-container">
+                <h3 class="chart-title">Training Progress</h3>
+                <canvas id="lossChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <h3 class="chart-title">Games per Iteration</h3>
+                <canvas id="gamesChart"></canvas>
+            </div>
+        </div>
+        
+        {% if analytics.metrics %}
+        <div class="metrics-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Iteration</th>
+                        <th>Games</th>
+                        <th>Total Loss</th>
+                        <th>Value Loss</th>
+                        <th>Policy Loss</th>
+                        <th>Avg Game Length</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for metric in analytics.metrics %}
+                    <tr>
+                        <td>{{ metric.iteration }}</td>
+                        <td>{{ metric.games_played }}</td>
+                        <td>{{ "%.4f"|format(metric.total_loss) }}</td>
+                        <td>{{ "%.4f"|format(metric.value_loss) }}</td>
+                        <td>{{ "%.4f"|format(metric.policy_loss) }}</td>
+                        <td>{{ "%.1f"|format(metric.average_game_length) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+    
+    <script>
+        // Training Loss Chart
+        const lossCtx = document.getElementById('lossChart').getContext('2d');
+        const lossData = {
+            labels: [{% for m in analytics.metrics %}'{{ m.iteration }}',{% endfor %}],
+            datasets: [{
+                label: 'Total Loss',
+                data: [{% for m in analytics.metrics %}{{ m.total_loss }},{% endfor %}],
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.4
+            }, {
+                label: 'Value Loss',
+                data: [{% for m in analytics.metrics %}{{ m.value_loss }},{% endfor %}],
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                tension: 0.4
+            }, {
+                label: 'Policy Loss',
+                data: [{% for m in analytics.metrics %}{{ m.policy_loss }},{% endfor %}],
+                borderColor: 'rgb(255, 205, 86)',
+                backgroundColor: 'rgba(255, 205, 86, 0.2)',
+                tension: 0.4
+            }]
+        };
+        
+        new Chart(lossCtx, {
+            type: 'line',
+            data: lossData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: { color: 'white' }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: { color: 'white' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: 'white' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                }
+            }
+        });
+        
+        // Games Chart
+        const gamesCtx = document.getElementById('gamesChart').getContext('2d');
+        const gamesData = {
+            labels: [{% for m in analytics.metrics %}'{{ m.iteration }}',{% endfor %}],
+            datasets: [{
+                label: 'Games Played',
+                data: [{% for m in analytics.metrics %}{{ m.games_played }},{% endfor %}],
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgb(54, 162, 235)',
+                borderWidth: 2
+            }]
+        };
+        
+        new Chart(gamesCtx, {
+            type: 'bar',
+            data: gamesData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: { color: 'white' }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: { color: 'white' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: 'white' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-role {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .admin-role {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .welcome-text {
+            font-size: 1.1em;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-logout {
+            background: rgba(220, 53, 69, 0.8);
+            color: white;
+        }
+
+        .btn-logout:hover {
+            background: rgba(220, 53, 69, 1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .dashboard-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .dashboard-title h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .dashboard-title p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .mode-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .mode-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .mode-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .mode-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .mode-title {
+            font-size: 1.8em;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .mode-description {
+            font-size: 1.1em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .mode-btn {
+            width: 100%;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: auto;
+        }
+
+        .btn-training {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-training:hover {
+            background: #218838;
+        }
+
+        .btn-playing {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-playing:hover {
+            background: #138496;
+        }
+
+        .stats-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stats-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .training-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .status-running {
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        .status-stopped {
+            background: #6c757d;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+
+        .flash-message {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .flash-success {
+            background: rgba(40, 167, 69, 0.3);
+            border: 1px solid rgba(40, 167, 69, 0.5);
+            color: #d4edda;
+        }
+
+        .flash-error {
+            background: rgba(220, 53, 69, 0.3);
+            border: 1px solid rgba(220, 53, 69, 0.5);
+            color: #f8d7da;
+        }
+
+        .flash-info {
+            background: rgba(23, 162, 184, 0.3);
+            border: 1px solid rgba(23, 162, 184, 0.5);
+            color: #d1ecf1;
+        }
+
+        @media (max-width: 768px) {
+            .mode-selection {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="nav-container">
+            <div class="logo-section">
+                <span class="logo">♟️</span>
+                <span class="nav-title">Chess AI Platform</span>
+            </div>
+            <div class="user-info">
+                <span>Welcome, {{ stats.username }}!</span>
+                <span class="user-role {{ 'admin-role' if stats.role == 'admin' else '' }}">
+                    {{ stats.role.title() }}
+                </span>
+                <a href="{{ url_for('logout') }}" class="btn btn-logout">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="dashboard-title">
+            {% if stats.role == 'admin' %}
+            <h1>🔧 Admin Dashboard</h1>
+            <p>Manage AI training, monitor users, and control the chess platform</p>
+            {% else %}
+            <h1>🏆 Your Chess Dashboard</h1>
+            <p>Play chess against AI and improve your skills</p>
+            {% endif %}
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="mode-selection">
+            {% if stats.role == 'admin' %}
+            <!-- Admin Training Mode -->
+            <div class="mode-card" onclick="goToTraining()">
+                <span class="mode-icon">🧠</span>
+                <h2 class="mode-title">AI Training Control</h2>
+                <p class="mode-description">
+                    Train AlphaZero-style neural networks using self-play reinforcement learning. 
+                    Upload datasets, monitor progress, and develop powerful chess AI models.
+                </p>
+                <button class="mode-btn btn-training">
+                    🚀 Manage Training
+                </button>
+            </div>
+
+            <!-- Admin Playing Mode -->
+            <div class="mode-card" onclick="goToPlaying()">
+                <span class="mode-icon">⚔️</span>
+                <h2 class="mode-title">Test AI Models</h2>
+                <p class="mode-description">
+                    Test trained AI models, play against different versions, 
+                    and evaluate model performance. All games contribute to training data.
+                </p>
+                <button class="mode-btn btn-playing">
+                    🎮 Test & Play
+                </button>
+            </div>
+
+            <!-- Admin Analytics -->
+            <div class="mode-card" onclick="showAnalytics()">
+                <span class="mode-icon">📈</span>
+                <h2 class="mode-title">Platform Analytics</h2>
+                <p class="mode-description">
+                    Monitor user activity, training progress, model performance,
+                    and platform statistics. Manage users and system resources.
+                </p>
+                <button class="mode-btn btn-analytics">
+                    📊 View Analytics
+                </button>
+            </div>
+            {% else %}
+            <!-- User Playing Mode -->
+            <div class="mode-card" onclick="goToPlaying()">
+                <span class="mode-icon">⚔️</span>
+                <h2 class="mode-title">Play Chess</h2>
+                <p class="mode-description">
+                    Play chess games against trained AI with multiple difficulty levels.
+                    Your games help improve the AI through continuous learning.
+                </p>
+                <button class="mode-btn btn-playing">
+                    🎮 Start Playing
+                </button>
+            </div>
+
+            <!-- User Game History -->
+            <div class="mode-card" onclick="showGameHistory()">
+                <span class="mode-icon">📚</span>
+                <h2 class="mode-title">Game History</h2>
+                <p class="mode-description">
+                    Review your past games, analyze your performance,
+                    and track your improvement over time.
+                </p>
+                <button class="mode-btn btn-history">
+                    📋 View History
+                </button>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="stats-section">
+            {% if stats.role == 'admin' %}
+            <h3 class="stats-title">🔧 Admin Statistics</h3>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">{{ analytics.users.total or 0 }}</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">{{ analytics.users.total_games or 0 }}</div>
+                    <div class="stat-label">Total Games</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">{{ analytics.training.total_iterations or 0 }}</div>
+                    <div class="stat-label">Training Iterations</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">{{ analytics.users.avg_rating|round|int or 1200 }}</div>
+                    <div class="stat-label">Average Rating</div>
+                </div>
+            </div>
+            {% else %}
+            <h3 class="stats-title">📊 Your Statistics</h3>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.games_played }}</div>
+                    <div class="stat-label">Games Played</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.wins }}</div>
+                    <div class="stat-label">Wins</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.losses }}</div>
+                    <div class="stat-label">Losses</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.draws }}</div>
+                    <div class="stat-label">Draws</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">{{ ((stats.wins / (stats.games_played if stats.games_played > 0 else 1)) * 100)|round(1) }}%</div>
+                    <div class="stat-label">Win Rate</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Initialize Socket.IO connection
+        const socket = io();
+
+        // Navigation functions
+        function goToTraining() {
+            window.location.href = '{{ url_for("training") }}';
+        }
+
+        function goToPlaying() {
+            window.location.href = '{{ url_for("playing") }}';
+        }
+
+        function showAnalytics() {
+            // TODO: Implement admin analytics page
+            alert('Analytics dashboard coming soon!');
+        }
+
+        function showGameHistory() {
+            // TODO: Implement user game history page
+            alert('Game history coming soon!');
+        }
+
+        // Socket event handlers
+        socket.on('connect', function() {
+            console.log('Connected to chess AI platform');
+        });
+
+        // Load initial training status
+        fetch('/training_status')
+            .then(response => response.json())
+            .then(data => {
+                updateTrainingStatus(data.is_training);
+            })
+            .catch(error => {
+                console.log('Error loading training status:', error);
+            });
+
+        function updateTrainingStatus(isTraining) {
+            const statusElements = document.querySelectorAll('.training-status');
+            statusElements.forEach(element => {
+                if (isTraining) {
+                    element.textContent = 'AI Training in Progress';
+                    element.className = 'training-status status-running';
+                } else {
+                    element.textContent = 'Ready to Train';
+                    element.className = 'training-status status-stopped';
+                }
+            });
+        }
+
+        // Listen for training updates
+        socket.on('training_started', function(data) {
+            updateTrainingStatus(true);
+        });
+
+        socket.on('training_stopped', function(data) {
+            updateTrainingStatus(false);
+        });
+
+        socket.on('training_completed', function(data) {
+            updateTrainingStatus(false);
+        });
+    </script>
+</body>
+</html>
